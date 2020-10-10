@@ -26,11 +26,11 @@ container_name = 'demo_container'
 
 # Create the container by this name if it doesn't already exist
 # id = name of the container
-# partition key = how the data in this container will be partitioned
+# partition key = how the data in this container will be partitioned (sorted)
 # offer_throughput = You can ignore this and keep it as '400', but it represents the capacity of the database
 # (lower numbers means less reads and writes per second)
 cosmos_container = cosmos_database.create_container_if_not_exists(id = container_name, 
-    partition_key = PartitionKey(path = '/id'),
+    partition_key = PartitionKey(path = '/type'),
     offer_throughput = 400)
 
 while True:
@@ -50,7 +50,8 @@ while True:
         # An object we want to create in our database
 
         create_data_object = {
-            'id': '123', # Our object ID (and our partition key)
+            'id': '123', # Our object ID
+            'type': 'smoothie', # Our object partition key value
             'name': 'fruit smoothie', # Data types can be simple strings...
             'ingredients': ['blueberry', 'strawberry'], # or arrays...
             'properties': { # or even a whole nested object!
@@ -65,7 +66,7 @@ while True:
 
     elif input_value == '2':
         try:
-            response = cosmos_container.read_item(item = '123', partition_key = '123')
+            response = cosmos_container.read_item(item = '123', partition_key = 'smoothie')
             print(response)
         except:
             print('Item not found!')
@@ -77,7 +78,7 @@ while True:
             'name': 'berry fruit smoothie'
         }
 
-        read_item = cosmos_container.read_item(item = '123', partition_key = '123')
+        read_item = cosmos_container.read_item(item = '123', partition_key = 'smoothie')
         
         # For each key in the update_data_object, replace that corresponding key's value
         # in the read item from the database
@@ -92,7 +93,7 @@ while True:
         print('Successfully updated the object! (The "name" key should be different now!)')
 
     elif input_value == '4':
-        cosmos_container.delete_item(item = '123', partition_key = '123')
+        cosmos_container.delete_item(item = '123', partition_key = 'smoothie')
         print('Successfully deleted the object!')
 
     # Whitespace printing
